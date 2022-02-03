@@ -65,8 +65,6 @@ def gif_maker(file_list, vid_name, mode="I", skip_rate=10, vid_type="mp4", durat
             raise ValueError("Frame rate (fps) must be an integer")
 
     count = 0
-    print(duration)
-    print(vid_name)
     if vid_type == "gif":
         with iio.get_writer(vid_name, mode=mode, duration=duration) as writer:
             for file in file_list:
