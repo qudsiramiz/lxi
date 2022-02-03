@@ -65,6 +65,8 @@ def gif_maker(file_list, vid_name, mode="I", skip_rate=10, vid_type="mp4", durat
             raise ValueError("Frame rate (fps) must be an integer")
 
     count = 0
+    print(duration)
+    print(vid_name)
     if vid_type == "gif":
         with iio.get_writer(vid_name, mode=mode, duration=duration) as writer:
             for file in file_list:
@@ -133,6 +135,7 @@ def make_gifs(
     print(f"Code execution started at (UTC):" +
           f"{datetime.datetime.utcfromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')}\n")
 
+    duration = np.round(duration, 3)
     file_list_dict = {}
     if search_recursive:
         # Search for all the files in the folder and subfolders recursively and store them in a
@@ -150,7 +153,7 @@ def make_gifs(
 
     for i,key in enumerate(list(file_list_dict.keys())):
         print(key, i)
-        vid_name = f"{vid_folder}{vid_name}_particleNumber_{str(key).zfill(5)}_{fps}fps.mp4"
+        vid_name = f"{vid_folder}{vid_name}_particleNumber_{str(key).zfill(5)}_{fps}fps.{vid_type}"
         try:
             gif_maker(file_list_dict[key], vid_name, mode="I", skip_rate=skip_rate,
                       vid_type=vid_type, fps=fps, duration=duration)
@@ -164,9 +167,9 @@ image_inputs = {
     "vid_folder":"/home/cephadrius/Desktop/git/lxi/figures/",
     "particle_number": [684],
     "vid_name":"particle_trajectories",
-    "vid_type":"mp4",
+    "vid_type":"gif",
     "skip_rate":1,
-    "duration":0.05,
+    "duration":1/15,
     "fps":15,
     "search_recursive":True
 }

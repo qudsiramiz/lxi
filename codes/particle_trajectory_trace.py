@@ -16,6 +16,13 @@ from magpylib.magnet import Box
 from matplotlib import cm, ticker
 from mpl_toolkits import mplot3d
 
+# Set the fontstyle to Times New Roman
+font = {'family': 'serif', 'weight': 'normal', 'size': 10}
+plt.rc('font', **font)
+plt.rc('text', usetex=True)
+
+start_time = time.time()
+
 today_date = datetime.datetime.today().strftime('%Y-%m-%d')
 
 # CPU 2021_01_13 changing how get magnetic field and using this file as baseline for timing
@@ -144,6 +151,8 @@ fig = plt.figure(num=None, figsize=(6,6), dpi=200, facecolor='w', edgecolor='gra
 axs = plt.axes(projection='3d')
 magpy.display(c_mag_array, axis=axs)
 axs.set_xlabel('X (mm)', fontsize=label_size)
+axs.set_ylabel('Y (mm)', fontsize=label_size)
+axs.set_zlabel('Z (mm)', fontsize=label_size)
 
 axs.tick_params(axis='both', direction='inout', which='major', left=True, right=True, top=True,
                  bottom=True, labelleft=True, labelright=False, labeltop=False, labelbottom=True,
@@ -155,9 +164,9 @@ axs.tick_params(axis='both', direction='inout', which='major', left=True, right=
 # Read the data from the file
 data_folder = "/media/cephadrius/endless/bu_research/lxi/data/2.0Kev"
 fnames = np.sort(glob.glob(f"{data_folder}/*.p"))
-np.random.seed(0)
+np.random.seed(10)
 particle_number_arr = np.random.random_integers(0, 1000, 10)
-# particle_number_arr = [176]
+#particle_number_arr = [265]
 for particle_number in particle_number_arr[0:]:
     df = pd.read_pickle(fnames[particle_number])
     x = df['pvectorlist'][:,0] * 1e3  # convert to mm
@@ -166,8 +175,9 @@ for particle_number in particle_number_arr[0:]:
     count = 0
     print(f"Plotting particle trajectory for particle {particle_number}\n")
     fig.suptitle(f'particle {particle_number}', fontsize=label_size, color='r', y=.85)
-    while count < (len(x)/1000):
 
+    while count < (len(x)/1000):
+#    while count < 2:
         min_ind = 0
         max_ind = 1000 * (count + 1)
         axs.plot(x[min_ind:max_ind], y[min_ind:max_ind], z[min_ind:max_ind], 'k--', ms=0.5,
@@ -187,6 +197,7 @@ for particle_number in particle_number_arr[0:]:
         fig_name = f"{fig_folder}/particle_trajectory_{str(particle_number).zfill(5)}_{str(count).zfill(3)}.{fig_format}"
         plt.savefig(fig_name, bbox_inches='tight', pad_inches=0.05, format=fig_format, dpi=250)
         count += 1
+
     print(f"Created all the images for particle number {particle_number}\n")
 #    plt.plot(df.)
 
@@ -194,3 +205,4 @@ for particle_number in particle_number_arr[0:]:
 #plt.close()
 #plt.show()
 
+print(f"It took {np.round(time.time() - start_time, 2)} seconds\n")
