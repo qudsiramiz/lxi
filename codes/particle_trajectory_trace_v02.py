@@ -160,7 +160,7 @@ data_folder = "/media/cephadrius/endless/bu_research/lxi/data/2.0Kev"
 fnames = np.sort(glob.glob(f"{data_folder}/*.p"))
 np.random.seed(2)
 particle_number_arr = np.random.random_integers(0, 1000, 10)
-
+print(particle_number_arr)
 t_vals = np.linspace(0, 1, iterations)
 
 colors = [[0, 0, 1, 0], [0, 0, 1, 0.5], [0, 0.2, 0.4, 1]]
@@ -169,7 +169,7 @@ fig = plt.figure(num=None, figsize=(6, 6), dpi=200, facecolor='w', edgecolor='gr
 axs = plt.axes(projection='3d')
 
 cmap = LinearSegmentedColormap.from_list("", colors)
-scatter = axs.plot(x_vals, y_vals, z_vals, c=[], cmap=cmap, vmin=0, vmax=1, lw=0.5)
+scatter = axs.scatter(x_vals, y_vals, z_vals, c=[], cmap=cmap, vmin=0, vmax=1)
 
 def get_new_vals(fnames, particle_number):
     df = pd.read_pickle(fnames[particle_number])
