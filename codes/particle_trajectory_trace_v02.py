@@ -22,7 +22,7 @@ from matplotlib.colors import LinearSegmentedColormap
 # Set the fontstyle to Times New Roman
 font = {'family': 'serif', 'weight': 'normal', 'size': 10}
 plt.rc('font', **font)
-plt.rc('text', usetex=True)
+plt.rc('text', usetex=False)
 
 start_time = time.time()
 
@@ -153,51 +153,59 @@ x_vals = []
 y_vals = []
 z_vals = []
 intensity = []
-iterations = 100
+iterations = 11
 
 # Read the data from the file
-data_folder = "/media/cephadrius/endless/bu_research/lxi/data/2.0Kev"
+data_folder = "../data/2.0Kev"
 fnames = np.sort(glob.glob(f"{data_folder}/*.p"))
-np.random.seed(2)
-particle_number_arr = np.random.random_integers(0, 1000, 10)
-print(particle_number_arr)
-t_vals = np.linspace(0, 1, iterations)
+#np.random.seed(2)
+#particle_number_arr = np.random.random_integers(0, 1000, 10)
+particle_number_arr = np.arange(10)
+t_vals = np.arange(iterations)
 
 colors = [[0, 0, 1, 0], [0, 0, 1, 0.5], [0, 0.2, 0.4, 1]]
 
 fig = plt.figure(num=None, figsize=(6, 6), dpi=200, facecolor='w', edgecolor='gray')
 axs = plt.axes(projection='3d')
+magpy.display(c_mag_array, axis=axs)
+axs.set_xlabel('X (mm)', fontsize=label_size)
+axs.set_ylabel('Y (mm)', fontsize=label_size)
+axs.set_zlabel('Z (mm)', fontsize=label_size)
 
-cmap = LinearSegmentedColormap.from_list("", colors)
+cmap = "viridis" #LinearSegmentedColormap.from_list("", colors)
 scatter = axs.scatter(x_vals, y_vals, z_vals, c=[], cmap=cmap, vmin=0, vmax=1)
 
-def get_new_vals(fnames, particle_number):
-    df = pd.read_pickle(fnames[particle_number])
+def get_new_vals(fname):
+    df = pd.read_pickle(fname)
     x = df['pvectorlist'][:, 0] * 1e3  # convert to mm
     y = df['pvectorlist'][:, 1] * 1e3  # convert to mm
     z = df['pvectorlist'][:, 2] * 1e3  # convert to mm
-
     return list(x), list(y), list(z)
 
 def update_graph(t):
     global x_vals, y_vals, z_vals, intensity
 
+    print(t)
     # Get the intermediate points
-    for particle_number in particle_number_arr:
-        x_new_vals, y_new_vals, z_new_vals = get_new_vals(fnames, particle_number)
-        x_vals.extend(x_new_vals)
-        y_vals.extend(y_new_vals)
-        z_vals.extend(z_new_vals)
+    #print(f"Particle number {particle_number}")
+    x_new_vals, y_new_vals, z_new_vals = get_new_vals(fnames[t])
+    x_vals.extend(x_new_vals)
+    y_vals.extend(y_new_vals)
+    z_vals.extend(z_new_vals)
 
-        # Plot the points in plot
-        scatter.set_offsets(np.c_[x_vals, y_vals, z_vals])
+    print(x_vals[-5:])
+    # Plot the points in plot
+    scatter.set_offsets(np.c_[x_vals, y_vals, z_vals])
 
-        # Compute the new color values
-        intensity = np.concatenate((np.array(intensity)*0.96, np.ones(len(x_new_vals))))
-        scatter.set_array(intensity)
+    # Compute the new color values
+    intensity = np.concatenate((np.array(intensity)*0.96, np.ones(len(x_new_vals))))
+    scatter.set_array(intensity)
 
+    axs.set_xlim(-65, 65)
+    axs.set_ylim(-65, 65)
+    axs.set_zlim(-65, 65)
     # Set the colorbar tick labels
 
 
-ani = matplotlib.animation.FuncAnimation(fig, update_graph, frames=t_vals, interval=50)
-plt.show()
+ani = matplotlib.animation.FuncAnimation(fig, update_graph, frames=t_vals, interval=1000, repeat_delay=100)
+ani.save("particle_trajectories.gif")
