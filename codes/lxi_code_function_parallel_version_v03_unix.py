@@ -420,7 +420,7 @@ ztoplist = [0., 0., 0., 0.]
 zpart_top = np.array([ztoplist, ztoplist, ztoplist, ztoplist])
 
 # ======INITIAL SETUP FINISHED (things that don't change with diff runs)======
-totalnumberofparticles = 1
+totalnumberofparticles = 1000
 dx = 0.00005
 # Inputs -------
 steps = 50000  # number of steps totrace
