@@ -130,3 +130,6 @@ dmypy.json
 
 # Ignore everything in the document folder
 documents/
+
+# Ignore temporary lock files
+.~lock.*
