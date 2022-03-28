@@ -1,11 +1,12 @@
 import tkinter as tk
+from tkinter import font
 from PIL import Image, ImageTk
 
 root = tk.Tk()
-root.title("LXI GUI")
+root.title("LEXI GUI")
 # Add the lxi logo
 root.iconbitmap("../../figures/lxi_gui_figures/lxi_icon.ico")
-root.geometry("600x600")
+#root.geometry("620x600")
 
 # Create a label widget and justify the text
 my_label = tk.Label(root, text="LEXI GUI", font=(
@@ -58,13 +59,15 @@ lxi_label.grid(row=0, column=2, rowspan=10, columnspan=4)
 # Add an input box with a label for start time
 start_time = tk.Entry(root, width=30, justify="center",
                       bg="white", fg="black", borderwidth=2)
-start_time.grid(row=12, column=3, columnspan=1)
+start_time.insert(0, "YYYY-MM-DD HH:MM:SS")
+start_time.grid(row=12, column=3, columnspan=1, pady=5, ipadx=10, ipady=10)
 start_time_label = tk.Label(root, text="Start Time", font=("Helvetica", 25))
 start_time_label.grid(row=13, column=3, columnspan=1)
 
 # Add an input box with a label for end time
 end_time = tk.Entry(root, width=30, justify="center", bg="white", fg="black", borderwidth=2)
-end_time.grid(row=12, column=4, columnspan=1, pady=10)
+end_time.insert(0, "YYYY-MM-DD HH:MM:SS")
+end_time.grid(row=12, column=4, columnspan=1, pady=5, ipadx=10, ipady=10)
 end_time_label = tk.Label(root, text="End Time", font=("Helvetica", 25))
 end_time_label.grid(row=13, column=4, columnspan=1)
 
