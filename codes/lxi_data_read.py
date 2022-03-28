@@ -7,17 +7,16 @@ import re
 #xrbr_unpack = '>II4H'
 xrbr_unpack = '>II4H'
 
-# t_cut is the limit between a science TLM packet that is not commanded, and one
-# that is commanded. 1073741824 in bit form is 01000000000000000000000000000000,
-# and the 1 is in the 31st spot, which makes the 1 a commanded event marker in
-# the science TLM packet in bit 14 (see above). HK data would have a 1 in the
-# 32nd spot, which would make the number larger than this.
+# t_cut is the limit between a science TLM packet that is not commanded, and one that is commanded.
+# 1073741824 in bit form is 01000000000000000000000000000000, and the 1 is in the 31st spot, which
+# makes the 1 a commanded event marker in the science TLM packet in bit 14 (see above). HK data
+# would have a 1 in the 32nd spot, which would make the number larger than this.
 t_cut = 1073741824
 
 # Read the binary file
 
-###############################################################################
-# X-RAY XRBR (X-Ray Burst) and XRFS (X-Ray Fast)
+############################################################################### X-RAY XRBR (X-Ray
+# Burst) and XRFS (X-Ray Fast)
 class xrbr_pkt(Structure):
     _fields_ = [('sync', c_uint32), ('time', c_uint32),
                 ('channels', c_uint16 * 4)]
@@ -31,16 +30,13 @@ def read_xrbr_sci(filename, varname = []):
     """
     Function to read science data out of XRBR file into numpy array.
 
-    ### Parameters
-    * filename : str
+    ### Parameters * filename : str
         >Name of logfile to read
     * varname : float array-like, optional
         >XRBR sci array to append data into. Default empty.
 
-    ### Returns
-    * staging : float array-like
-        >Array of XRBR sci data from logfile. Includes data from `varname`,
-        if specified.
+    ### Returns * staging : float array-like
+        >Array of XRBR sci data from logfile. Includes data from `varname`, if specified.
     """
 
     f = open(filename, 'rb')
@@ -81,8 +77,7 @@ def read_xrbr_hk(filename, varname = []):
     ### Returns
     
     * staging : float array-like
-        >Array of XRBR HK data from logfile. Includes data from `varname`,
-        if specified.
+        >Array of XRBR HK data from logfile. Includes data from `varname`, if specified.
         
     """
     f = open(filename, 'rb')
@@ -94,10 +89,8 @@ def read_xrbr_hk(filename, varname = []):
     for idx, s in enumerate(starts):
         stuff = unpack(xrbr_unpack, contents[s:s+16])
         data = xrbr_pkt(stuff)
-        # 2147483648
-        # This time demarkation is for HK packets from the xray that would have
-        # a Telemetry Type of 1 in bit 31 of the 0-31 bit 4 byte Time Tag data
-        # (bytes 4-7)
+        # 2147483648 This time demarkation is for HK packets from the xray that would have a
+        # Telemetry Type of 1 in bit 31 of the 0-31 bit 4 byte Time Tag data (bytes 4-7)
         if (data.time >= 2147483647):
             pkt_list.append(data)
     f.close()
@@ -137,16 +130,16 @@ file_name = "../data/raw_data/2022_03_03_1030_LEXI_raw_2100_newMCP_copper.txt"
 dat_sci = read_xrbr_sci(file_name)
 
 # Save the data to a csv file with headers as Times, Channels 1-4
-dat_sci_df = pd.DataFrame(dat_sci, columns=['TimeStamp', 'Channel1', 'Channel2', 'Channel3', 'Channel4'])
+dat_sci_df = pd.DataFrame(
+    dat_sci, columns=['TimeStamp', 'Channel1', 'Channel2', 'Channel3', 'Channel4'])
 dat_sci_df.to_csv('../data/raw_data/2022_03_03_1030_LEXI_raw_2100_newMCP_copper_sci_qudsi.csv',
                   index=False, header=True, sep=',', mode='w', float_format='%.3f')
 
 '''
-file_name = "../data/raw_data/2022_03_03_1030_LEXI_raw_2100_newMCP_copper.txt"
-with open(file_name, 'rb') as f:
+file_name = "../data/raw_data/2022_03_03_1030_LEXI_raw_2100_newMCP_copper.txt" with open(file_name,
+'rb') as f:
     data = f.read()
 
-# Convert the binary file to a numpy array
-#data_array = np.frombuffer(data, dtype='>i2')
-data_array = np.frombuffer(data, dtype='i4')
+# Convert the binary file to a numpy array #data_array = np.frombuffer(data, dtype='>i2') data_array
+= np.frombuffer(data, dtype='i4')
 '''
