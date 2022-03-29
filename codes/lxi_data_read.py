@@ -1,8 +1,9 @@
+import re
+from ctypes import Structure, c_uint16, c_uint32
+from struct import unpack
+
 import numpy as np
 import pandas as pd
-from struct import pack, unpack
-from ctypes import c_uint8, c_uint16, c_uint32, c_int16, c_float, Structure
-import re
 
 #xrbr_unpack = '>II4H'
 xrbr_unpack = '>II4H'
@@ -49,7 +50,7 @@ def read_xrbr_sci(filename, varname = []):
     starts = [m.start() for m in re.finditer(b'\xfe\x6b', contents)]
     stops = starts[1:]
     stops.append(starts[-1]+16)
-    for idx, s in enumerate(starts):
+    for s in starts:
         stuff = unpack(xrbr_unpack, contents[s:s+16])
         data = xrbr_pkt(stuff)
         if (data.time < t_cut):
