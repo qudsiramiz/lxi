@@ -1,12 +1,15 @@
 import tkinter as tk
-from tkinter import font
+from tkinter import PhotoImage, font
 from PIL import Image, ImageTk
 
 root = tk.Tk()
 root.title("LEXI GUI")
 # Add the lxi logo
-root.iconbitmap("../../figures/lxi_gui_figures/lxi_icon.ico")
+#img = tk.PhotoImage(file="../../figures/lxi_gui_figures/lxi_icon.ico")
+#root.tk.call('wm', 'iconphoto', root._w, img)
+#root.iconbitmap("../../figures/lxi_gui_figures/lxi_icon")
 #root.geometry("620x600")
+
 
 # Create a label widget and justify the text
 my_label = tk.Label(root, text="LEXI GUI", font=(
@@ -50,7 +53,7 @@ vlt_label.grid(row=8, column=0, rowspan=3, columnspan=2)
 #blank_frame.grid(row=13, column=0)
 
 # Add lxi image to spanning 4 columns and 10 rows
-lxi_image = Image.open("../../figures/lxi_gui_figures/lxi_FIG.png")
+lxi_image = Image.open("../../figures/lxi_gui_figures/lxi_fig.png")
 lxi_image = lxi_image.resize((400, 400), Image.ANTIALIAS)
 lxi_image = ImageTk.PhotoImage(lxi_image)
 lxi_label = tk.Label(image=lxi_image)

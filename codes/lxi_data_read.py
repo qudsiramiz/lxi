@@ -54,6 +54,7 @@ def read_xrbr_sci(filename, varname = []):
     f.close()
     npkts = len(pkt_list)
     staging = np.zeros([npkts,5])
+    xrbr_sci_arr_cal = np.zeros([npkts,5])
     for i in range(npkts):
         pkt = pkt_list[i]
         staging[i,0] = pkt.time
@@ -62,14 +63,15 @@ def read_xrbr_sci(filename, varname = []):
         xrbr_sci_arr = np.concatenate((varname,staging),axis=0)
     else:
         xrbr_sci_arr = staging
-    return xrbr_sci_arr
+        xrbr_sci_arr_cal[:,0] = xrbr_sci_arr[:,0]
+        xrbr_sci_arr_cal[:,1:] = xrbr_sci_arr[:,1:] * 0.00006881
+    return xrbr_sci_arr_cal
 
 def read_xrbr_hk(filename, varname = []):
     """
     Function to read housekeeping data out of XRBR file into numpy array.
 
     ### Parameters
-    
     * filename : str
         >Name of logfile to read
     *varname : float array-like, optional
