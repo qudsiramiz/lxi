@@ -171,6 +171,12 @@ file_path.grid(row=2, column=0, columnspan=2, pady=5)
 #vlt_label = tk.Label(image=vlt_image)
 #vlt_label.grid(row=8, column=0, rowspan=3, columnspan=2)
 
+tmp_image = Image.open("figures/time_series_plot.png")
+tmp_image = tmp_image.resize((200, 100), Image.ANTIALIAS)
+tmp_image = ImageTk.PhotoImage(tmp_image)
+tmp_label = tk.Label(image=tmp_image)
+tmp_label.grid(row=5, column=0, rowspan=3, columnspan=2)
+
 # Add a blank frame to the window
 #blank_frame = tk.Frame(root, width=50, height=50, borderwidth=1)
 #blank_frame.grid(row=13, column=0)
