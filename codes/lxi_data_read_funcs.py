@@ -11,7 +11,7 @@ packet_format_sci = ">II4H"
 packet_format_hk =">II4H"
 
 sync = b'\xfe\x6b\x28\x40'
-volts_per_count = 0.00006881
+volts_per_count = 0.00006881 # volts per increment of digitization
 
 class sci_packet(NamedTuple):
     is_commanded: bool
@@ -35,7 +35,7 @@ class sci_packet(NamedTuple):
 
 class hk_packet_cls(NamedTuple):
     timestamp: int
-    hk_status: int
+    hk_id: int
     hk_value: float
     delta_event_count: int
     delta_drop_event_count: int
@@ -44,14 +44,28 @@ class hk_packet_cls(NamedTuple):
     @classmethod
     def from_bytes(cls, bytes_: bytes) :
         structure = struct.unpack(packet_format_hk, bytes_)
-        return cls(
-            timestamp=structure[1] & 0x3fffffff,           # mask for getting all timestamp bits
-            hk_status=(structure[2] & 0xf000)/(2**12),
-            hk_value=structure[2] & 0xfff,
-            delta_event_count=structure[3],
-            delta_drop_event_count=structure[4],
-            delta_lost_event_count=structure[5],
-        )
+        # Check if the present packet is the house-keeping packet. Only the house-keeping packets
+        # are processed.
+        if structure[1] & 0x80000000:
+            timestamp=structure[1] & 0x3fffffff           # mask for getting all timestamp bits
+            hk_id=(structure[2] & 0xf000) >> 12
+            if hk_id == 10 or hk_id == 11:
+                hk_value=structure[2] & 0xfff
+            else:
+                hk_value=(structure[2] & 0xfff) << 4
+
+            delta_event_count=structure[3]
+            delta_drop_event_count=structure[4]
+            delta_lost_event_count=structure[5]
+
+            return cls(
+               timestamp=timestamp,
+                hk_id=hk_id,
+                hk_value=hk_value,
+                delta_event_count=delta_event_count,
+                delta_drop_event_count=delta_drop_event_count,
+                delta_lost_event_count=delta_lost_event_count,
+            )
 
 def read_binary_data_sci(
     in_file_path=None,
@@ -237,60 +251,69 @@ def read_binary_data_hk(
 
         index += 1
 
-    TimeStamp = np.full(len(packets), np.nan)
-    PinPullerTemp = np.full(len(packets), np.nan)
-    OpticsTemp = np.full(len(packets), np.nan)
-    LEXIbaseTemp = np.full(len(packets), np.nan)
-    HVsupplyTemp = np.full(len(packets), np.nan)
-    V_Imon_5_2 = np.full(len(packets), np.nan)
-    V_Imon_10 = np.full(len(packets), np.nan)
-    V_Imon_3_3 = np.full(len(packets), np.nan)
-    AnodeVoltMon = np.full(len(packets), np.nan)
-    V_Imon_28 = np.full(len(packets), np.nan)
-    ADC_Ground = np.full(len(packets), np.nan)
-    Cmd_count = np.full(len(packets), np.nan)
-    Pinpuller_Armed = np.full(len(packets), np.nan)
-    Unused = np.full(len(packets), np.nan)
-    Unused = np.full(len(packets), np.nan)
-    HVmcpAuto = np.full(len(packets), np.nan)
-    HVmcpMan = np.full(len(packets), np.nan)
-    DeltaEvntCount = np.full(len(packets), np.nan)
-    DeltaDroppedCount = np.full(len(packets), np.nan)
-    DeltaLostevntCount = np.full(len(packets), np.nan)
+    # Get only those packets that have the HK data
+    hk_idx = []
+    for idx, hk_packet in enumerate(packets):
+        if hk_packet is not None:
+            hk_idx.append(idx)
 
-    for ii,hk_packet in enumerate(packets):
+    TimeStamp = np.full(len(hk_idx), np.nan)
+    HK_id = np.full(len(hk_idx), np.nan)
+    PinPullerTemp = np.full(len(hk_idx), np.nan)
+    OpticsTemp = np.full(len(hk_idx), np.nan)
+    LEXIbaseTemp = np.full(len(hk_idx), np.nan)
+    HVsupplyTemp = np.full(len(hk_idx), np.nan)
+    V_Imon_5_2 = np.full(len(hk_idx), np.nan)
+    V_Imon_10 = np.full(len(hk_idx), np.nan)
+    V_Imon_3_3 = np.full(len(hk_idx), np.nan)
+    AnodeVoltMon = np.full(len(hk_idx), np.nan)
+    V_Imon_28 = np.full(len(hk_idx), np.nan)
+    ADC_Ground = np.full(len(hk_idx), np.nan)
+    Cmd_count = np.full(len(hk_idx), np.nan)
+    Pinpuller_Armed = np.full(len(hk_idx), np.nan)
+    Unused = np.full(len(hk_idx), np.nan)
+    Unused = np.full(len(hk_idx), np.nan)
+    HVmcpAuto = np.full(len(hk_idx), np.nan)
+    HVmcpMan = np.full(len(hk_idx), np.nan)
+    DeltaEvntCount = np.full(len(hk_idx), np.nan)
+    DeltaDroppedCount = np.full(len(hk_idx), np.nan)
+    DeltaLostevntCount = np.full(len(hk_idx), np.nan)
+
+    for ii,idx in enumerate(hk_idx):
+        hk_packet = packets[idx]
         TimeStamp[ii] = hk_packet.timestamp
-        if hk_packet.hk_status==0:
-            PinPullerTemp[ii] = (hk_packet.hk_value - 2.73) * 100
-        elif hk_packet.hk_status==1:
-            OpticsTemp[ii] = (hk_packet.hk_value - 2.73) * 100
-        elif hk_packet.hk_status==2:
-            LEXIbaseTemp[ii] = (hk_packet.hk_value - 2.73) * 100
-        elif hk_packet.hk_status==3:
-            HVsupplyTemp[ii] = hk_packet.hk_value
-        elif hk_packet.hk_status==4:
-            V_Imon_5_2[ii] = hk_packet.hk_value
-        elif hk_packet.hk_status==5:
-            V_Imon_10[ii] = hk_packet.hk_value
-        elif hk_packet.hk_status==6:
-            V_Imon_3_3[ii] = hk_packet.hk_value
-        elif hk_packet.hk_status==7:
-            AnodeVoltMon[ii] = hk_packet.hk_value
-        elif hk_packet.hk_status==8:
-            V_Imon_28[ii] = hk_packet.hk_value
-        elif hk_packet.hk_status==9:
+        HK_id[ii] = hk_packet.hk_id
+        if hk_packet.hk_id==0:
+            PinPullerTemp[ii] = (hk_packet.hk_value * volts_per_count - 2.73) * 100
+        elif hk_packet.hk_id==1:
+            OpticsTemp[ii] = (hk_packet.hk_value * volts_per_count - 2.73) * 100
+        elif hk_packet.hk_id==2:
+            LEXIbaseTemp[ii] = (hk_packet.hk_value * volts_per_count - 2.73) * 100 
+        elif hk_packet.hk_id==3:
+            HVsupplyTemp[ii] = (hk_packet.hk_value * volts_per_count - 2.73) * 100 
+        elif hk_packet.hk_id==4:
+            V_Imon_5_2[ii] = hk_packet.hk_value * volts_per_count
+        elif hk_packet.hk_id==5:
+            V_Imon_10[ii] = hk_packet.hk_value * volts_per_count
+        elif hk_packet.hk_id==6:
+            V_Imon_3_3[ii] = hk_packet.hk_value * volts_per_count
+        elif hk_packet.hk_id==7:
+            AnodeVoltMon[ii] = hk_packet.hk_value * volts_per_count
+        elif hk_packet.hk_id==8:
+            V_Imon_28[ii] = hk_packet.hk_value * volts_per_count
+        elif hk_packet.hk_id==9:
             ADC_Ground[ii] = hk_packet.hk_value * volts_per_count
-        elif hk_packet.hk_status==10:
+        elif hk_packet.hk_id==10:
             Cmd_count[ii] = hk_packet.hk_value
-        elif hk_packet.hk_status==11:
+        elif hk_packet.hk_id==11:
             Pinpuller_Armed[ii] = hk_packet.hk_value
-        elif hk_packet.hk_status==12:
+        elif hk_packet.hk_id==12:
             Unused[ii] = hk_packet.hk_value
-        elif hk_packet.hk_status==13:
+        elif hk_packet.hk_id==13:
             Unused[ii] = hk_packet.hk_value
-        elif hk_packet.hk_status==14:
+        elif hk_packet.hk_id==14:
             HVmcpAuto[ii] = hk_packet.hk_value * volts_per_count
-        elif hk_packet.hk_status==15:
+        elif hk_packet.hk_id==15:
             HVmcpMan[ii] = hk_packet.hk_value * volts_per_count
 
         DeltaEvntCount[ii] = hk_packet.delta_event_count
@@ -309,6 +332,7 @@ def read_binary_data_hk(
             file,
             fieldnames=(
                 "TimeStamp",
+                "HK_id",
                 "PinPullerTemp",
                 "OpticsTemp",
                 "LEXIbaseTemp",
@@ -335,6 +359,7 @@ def read_binary_data_hk(
         dict_writer.writerows(
             {
                 "TimeStamp": TimeStamp[ii],
+                "HK_id": HK_id[ii],
                 "PinPullerTemp": PinPullerTemp[ii],
                 "OpticsTemp": OpticsTemp[ii],
                 "LEXIbaseTemp": LEXIbaseTemp[ii],
@@ -355,8 +380,28 @@ def read_binary_data_hk(
                 "DeltaDroppedCount": DeltaDroppedCount[ii],
                 "DeltaLostevntCount": DeltaLostevntCount[ii],
             }
-            for ii in range(len(packets))
+            for ii in range(len(hk_idx))
         )
     return packets
 
-pkts = read_binary_data_hk()
+in_file_path = "../data/raw_data/2022_04_21_1431_LEXI_HK_unit_1_mcp_unit_1_eBox_1987_hk_/"
+in_file_name = "2022_04_21_1431_LEXI_raw_LEXI_unit_1_mcp_unit_1_eBox-1987.txt"
+save_file_path_sci = "../data/processed_data/sci/"
+save_file_path_hk = "../data/processed_data/hk/"
+save_file_name = f"{in_file_name[:-4]}_qudsi.csv"
+
+pkts = read_binary_data_hk(
+    in_file_path=in_file_path,
+    in_file_name=in_file_name,
+    save_file_path=save_file_path_hk,
+    save_file_name=save_file_name,
+    number_of_decimals=6
+    )
+
+pkts = read_binary_data_sci(
+    in_file_path=in_file_path,
+    in_file_name=in_file_name,
+    save_file_path=save_file_path_sci,
+    save_file_name=save_file_name,
+    number_of_decimals=6
+    )
