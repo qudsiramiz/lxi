@@ -167,6 +167,7 @@ def plot_data(file_name_sci=None, file_name_hk=None, t_start=None, t_end=None):
 
     df_slice_hk = read_csv_hk(file_val=file_name_hk, t_start=t_start, t_end=t_end)
     df_slice_sci = read_csv_sci(file_val=file_name_sci, t_start=t_start, t_end=t_end)
+    df_slice_sci = df_slice_sci[df_slice_sci['IsCommanded'] == False]
 
     # Display the time series plot
     fig1 = plot_routines.plot_time_series(df=df_slice_hk, ms=2, alpha=1)
