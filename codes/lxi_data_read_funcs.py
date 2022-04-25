@@ -14,6 +14,21 @@ sync = b'\xfe\x6b\x28\x40'
 volts_per_count = 0.00006881 # volts per increment of digitization
 
 class sci_packet(NamedTuple):
+    """
+    Class for the science packet.
+    The code unpacks the science packet into a named tuple. Based on the packet format, each packet
+    is unpacked into following parameters:
+    - timestamp: int (32 bit)
+    - IsCommanded: bool (1 bit)
+    - volatge channel1: float (16 bit)
+    - volatge channel2: float (16 bit)
+    - volatge channel3: float (16 bit)
+    - volatge channel4: float (16 bit)
+
+    TimeStamp is the time stamp of the packet in seconds.
+    IsCommand tells you if the packet was commanded.
+    Voltages 1 to 4 are the voltages of corresponding different channels.
+    """
     is_commanded: bool
     timestamp: int
     channel1: float
@@ -34,6 +49,36 @@ class sci_packet(NamedTuple):
         )
 
 class hk_packet_cls(NamedTuple):
+    """
+    Class for the housekeeping packet.
+    The code unpacks the HK packet into a named tuple. Based on the document and data structure,
+    each packet is unpacked into
+    - "timestamp",
+    - "hk_id" (this tells us what "hk_value" stores inside it),
+    - "hk_value",
+    - "delta_event_count",
+    - "delta_drop_event_count", and
+    - "delta_lost_event_count".
+
+    Based on the value of "hk_id", "hk_value" might correspond to value of following parameters:
+    NOTE: "hk_id" is a number, and varies from 0 to 15.
+    0: PinPuller Temperature
+    1: Optics Temperature
+    2: LEXI Base Temperature
+    3: HV Supply Temperature
+    4: Current Correspoding to the HV Supply (5.2V)
+    5: Current Correspoding to the HV Supply (10V)
+    6: Current Correspoding to the HV Supply (3.3V)
+    7: Anode Voltage Monitor
+    8: Current Correspoding to the HV Supply (28V)
+    9: ADC Ground
+    10: Command Count
+    11: Pin Puller Armmed
+    12: Unused
+    13: Unused
+    14: MCP HV after auto change
+    15: MCP HV after manual change
+    """
     timestamp: int
     hk_id: int
     hk_value: float
@@ -47,13 +92,12 @@ class hk_packet_cls(NamedTuple):
         # Check if the present packet is the house-keeping packet. Only the house-keeping packets
         # are processed.
         if structure[1] & 0x80000000:
-            timestamp=structure[1] & 0x3fffffff           # mask for getting all timestamp bits
-            hk_id=(structure[2] & 0xf000) >> 12
+            timestamp=structure[1] & 0x3fffffff  # mask for getting all timestamp bits
+            hk_id=(structure[2] & 0xf000) >> 12  # Down-shift 12 bits to get the hk_id
             if hk_id == 10 or hk_id == 11:
                 hk_value=structure[2] & 0xfff
             else:
-                hk_value=(structure[2] & 0xfff) << 4
-
+                hk_value=(structure[2] & 0xfff) << 4  # Up-shift 4 bits to get the hk_value
             delta_event_count=structure[3]
             delta_drop_event_count=structure[4]
             delta_lost_event_count=structure[5]
@@ -95,7 +139,8 @@ def read_binary_data_sci(
     FileNotFoundError :
         If the input file does not exist.
     TypeError :
-        If the name of the input file or input directory is not a string.
+        If the name of the input file or input directory is not a string. Or if the number of
+        deminals is not an integer.
     Returns
     -------
         None.
@@ -195,7 +240,7 @@ def read_binary_data_hk(
     save_file_path : str
         Path to the output file. Default is "../data/".
     save_file_name : str
-        Name of the output file. Default is "output_sci.csv".
+        Name of the output file. Default is "output_hk.csv".
     number_of_decimals : int
         Number of decimals to save. Default is 6.
 
@@ -204,7 +249,7 @@ def read_binary_data_hk(
     FileNotFoundError :
         If the input file does not exist.
     TypeError :
-        If the name of the input file or input directory is not a string.
+        If the name of the input file or input directory is not a string. Or if the number of deminals is not an integer.
     Returns
     -------
         None.
@@ -320,13 +365,47 @@ def read_binary_data_hk(
         DeltaDroppedCount[ii] = hk_packet.delta_drop_event_count
         DeltaLostevntCount[ii] = hk_packet.delta_lost_event_count
 
+    # For observations which get their values from "HK_value", go through the whole array and
+    # replace the nans at any index with the value from the previous index.
+    # This is to make sure that the file isn't inundated with nans.
+    for ii in range(1,len(TimeStamp)):
+        if np.isnan(PinPullerTemp[ii]):
+            PinPullerTemp[ii] = PinPullerTemp[ii-1]
+        if np.isnan(OpticsTemp[ii]):
+            OpticsTemp[ii] = OpticsTemp[ii-1]
+        if np.isnan(LEXIbaseTemp[ii]):
+            LEXIbaseTemp[ii] = LEXIbaseTemp[ii-1]
+        if np.isnan(HVsupplyTemp[ii]):
+            HVsupplyTemp[ii] = HVsupplyTemp[ii-1]
+        if np.isnan(V_Imon_5_2[ii]):
+            V_Imon_5_2[ii] = V_Imon_5_2[ii-1]
+        if np.isnan(V_Imon_10[ii]):
+            V_Imon_10[ii] = V_Imon_10[ii-1]
+        if np.isnan(V_Imon_3_3[ii]):
+            V_Imon_3_3[ii] = V_Imon_3_3[ii-1]
+        if np.isnan(AnodeVoltMon[ii]):
+            AnodeVoltMon[ii] = AnodeVoltMon[ii-1]
+        if np.isnan(V_Imon_28[ii]):
+            V_Imon_28[ii] = V_Imon_28[ii-1]
+        if np.isnan(ADC_Ground[ii]):
+            ADC_Ground[ii] = ADC_Ground[ii-1]
+        if np.isnan(Cmd_count[ii]):
+            Cmd_count[ii] = Cmd_count[ii-1]
+        if np.isnan(Pinpuller_Armed[ii]):
+            Pinpuller_Armed[ii] = Pinpuller_Armed[ii-1]
+        if np.isnan(Unused[ii]):
+            Unused[ii] = Unused[ii-1]
+        if np.isnan(HVmcpAuto[ii]):
+            HVmcpAuto[ii] = HVmcpAuto[ii-1]
+        if np.isnan(HVmcpMan[ii]):
+            HVmcpMan[ii] = HVmcpMan[ii-1]
+
     # Check if the save folder exists, if not then create it
     if not Path(save_file_path).exists():
         Path(save_file_path).mkdir(parents=True, exist_ok=True)
 
     # Name of the output file
     output_file_name = save_file_path + save_file_name
-    print(output_file_name)
     with open(output_file_name, 'w', newline='') as file:
         dict_writer = csv.DictWriter(
             file,

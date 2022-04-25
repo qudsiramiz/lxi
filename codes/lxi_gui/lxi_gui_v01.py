@@ -232,6 +232,11 @@ hk_file_load_button = tk.Button(root, text="Load HK File", command=open_file_hk,
                                 font=font_style)
 hk_file_load_button.grid(row=0, column=2, columnspan=2, pady=0, sticky="w")
 
+
+b_file_load_button = tk.Button(root, text="Load binary File", command=open_file_sci,
+                                font=font_style)
+b_file_load_button.grid(row=0, column=4, columnspan=2, pady=0, sticky="w")
+
 # Add an input box with a label for start time
 start_time = tk.Entry(root, width=30, justify="center",
                       bg="white", fg="black", borderwidth=2)
