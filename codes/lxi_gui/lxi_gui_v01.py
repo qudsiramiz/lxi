@@ -13,8 +13,8 @@ import lxi_gui_plot_routines as plot_routines
 
 importlib.reload(plot_routines)
 
-sci_file_name = "sci_file_name.csv"
-hk_file_name = "hk_file_name.csv"
+sci_file_name = "/home/cephadrius/Desktop/git/lxi/data/processed_data/sci/2022_04_21_1431_LEXI_raw_LEXI_unit_1_mcp_unit_1_eBox-1987_qudsi.csv"
+hk_file_name = "/home/cephadrius/Desktop/git/lxi/data/processed_data/hk/2022_04_21_1431_LEXI_raw_LEXI_unit_1_mcp_unit_1_eBox-1987_qudsi.csv"
 
 def open_file_sci():
     # define a global variable for the file name
@@ -188,13 +188,13 @@ def plot_data(file_name_sci=None, file_name_hk=None, t_start=None, t_end=None):
     render1 = ImageTk.PhotoImage(load1)
     img1 = tk.Label(image=render1)
     img1.image = render1
-    img1.grid(row=2, column=0, rowspan=3, columnspan=2, sticky="w")
+    img1.grid(row=2, column=0, rowspan=5, columnspan=2, sticky="w")
 
     fig2 = plot_routines.plot_histogram(df=df_slice_sci, x_min=x_min, x_max=x_max, y_min=y_min,
                                         y_max=y_max, bins=bins, density=density, norm=norm)
     load2 = Image.open("figures/xy_plot.png")
     # Resize the image to fit the canvas (in pixels)
-    load2 = load2.resize((int(fig2.get_figwidth() * 500/6), int(fig2.get_figheight() * 500/6)))
+    load2 = load2.resize((int(fig2.get_figwidth() * 500/5), int(fig2.get_figheight() * 500/6)))
     render2 = ImageTk.PhotoImage(load2)
     img2 = tk.Label(image=render2)
     img2.image = render2
