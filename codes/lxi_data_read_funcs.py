@@ -13,6 +13,7 @@ packet_format_hk =">II4H"
 sync = b'\xfe\x6b\x28\x40'
 volts_per_count = 0.00006881 # volts per increment of digitization
 
+
 class sci_packet(NamedTuple):
     """
     Class for the science packet.
@@ -47,6 +48,7 @@ class sci_packet(NamedTuple):
             channel3=structure[4] * volts_per_count,
             channel4=structure[5] * volts_per_count,
         )
+
 
 class hk_packet_cls(NamedTuple):
     """
