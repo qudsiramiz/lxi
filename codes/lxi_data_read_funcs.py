@@ -11,7 +11,7 @@ packet_format_sci = ">II4H"
 packet_format_hk =">II4H"
 
 sync = b'\xfe\x6b\x28\x40'
-volts_per_count = 0.00006881 # volts per increment of digitization
+volts_per_count = 0.000068817 # volts per increment of digitization
 
 
 class sci_packet(NamedTuple):
