@@ -77,20 +77,20 @@ plt.close("all")
 
 for key in key_list:
 
-    fig = plt.figure(figsize=(10, 5))
+    fig = plt.figure(figsize=(20, 10))
     fig.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.1, wspace=0.2, hspace=0.2)
 
     axs1 = fig.add_subplot(1, 2, 1)
-    for i in range(len(df_sc_prior_list)):
-        axs1.hist(df_sc_prior_list[i][key], bins=100, label=df_sc.Maximum[i])
+    for i in range(19, 24):
+        axs1.hist(df_sc_prior_list[i][key], bins=100, label=df_sc.Maximum[i], alpha=0.5)
     axs1.set_xlabel(f'{key} {unit_list_dict[key]}')
     axs1.set_ylabel('Count')
     axs1.set_title(f'Histogram of {key} for each solar cycle')
     axs1.legend()
 
     axs2 = fig.add_subplot(1, 2, 2)
-    for i in range(len(df_sc_after_list)):
-        axs2.hist(df_sc_after_list[i][key], bins=100, label=df_sc.Maximum[i])
+    for i in range(19, 23):
+        axs2.hist(df_sc_after_list[i][key], bins=100, label=df_sc.Maximum[i], alpha=0.5)
     axs2.set_xlabel(f'{key} {unit_list_dict[key]}')
     axs2.set_ylabel('Count')
     axs2.set_title(f'Histogram of {key} for each solar cycle')
@@ -98,6 +98,7 @@ for key in key_list:
 
     plt.savefig(f'../figures/hist_{key}_solar_cycle_prior_after.pdf', bbox_inches='tight',
                 pad_inches=0.05, dpi=250)
+    print(f"Figure saved for {key}")
 # plt.show()
 # try :
 #     t_sc_unix = ((df.index - pd.datetime(1970, 1, 1, 0, 0, 0, 0, pytz.UTC)).total_seconds())
