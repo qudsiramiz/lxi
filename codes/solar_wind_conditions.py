@@ -109,6 +109,7 @@ for key in key_list[:]:
     axs2.set_ylabel('Count')
     axs2.set_xscale(x_scale)
     axs2.set_title(f'Histogram of {key} after solar maxima')
+    axs2.yaxis.set_label_position("right")
     axs2.legend()
 
     plt.savefig(f'../figures/hist_{key}_solar_cycle_prior_after.pdf', bbox_inches='tight',
