@@ -47,28 +47,40 @@ for i in range(len(year_list)):
 # Compute the time 1 year prior to the solar cycle maximum and the time 1 year after the solar cycle
 # maximum and add it to the solar cycle list
 df_sc['t_1yr_prior'] = np.array(dt_list) - pd.to_timedelta(365, unit='d')
+df_sc['Max_time'] = np.array(dt_list)
 df_sc['t_1yr_after'] = np.array(dt_list) + pd.to_timedelta(365, unit='d')
-
-# Select data from df corresponding to the time interval of 1963-01-01 to 1964-01-01
-df_sc_20 = df[(df.index >= '1963-01-01 00:00:00') & (df.index <= '1964-01-01 00:00:00')]
 
 # Slect the data from omni df corresponding to 1 year before each solar cycle maximum and 1 year
 # after each solar cycle maximum
-df_sc_list = []
+df_sc_prior_list = []
+df_sc_after_list = []
 for i in range(len(df_sc)):
-    df_sc_list.append(df_omni[(df_omni.index >= df_sc.iloc[i].t_1yr_prior) &
-                              (df_omni.index <= df_sc.iloc[i].t_1yr_after)])
+    df_sc_prior_list.append(df_omni[(df_omni.index >= df_sc.iloc[i].t_1yr_prior) &
+                              (df_omni.index <= df_sc.iloc[i].Max_time)])
+    df_sc_after_list.append(df_omni[(df_omni.index <= df_sc.iloc[i].t_1yr_after) &
+                              (df_omni.index >= df_sc.iloc[i].Max_time)])
 
 # Make a histogram of np for each solar cycle
 fig, ax = plt.subplots(1, 1, figsize=(10, 10))
-for i in range(len(df_sc_list)):
-    ax.hist(df_sc_list[i].np, bins=100, label=df_sc.Maximum[i])
+for i in range(len(df_sc_prior_list)):
+    ax.hist(df_sc_prior_list[i].np, bins=100, label=df_sc.Maximum[i])
 ax.set_xlabel('$n_p$ [$10^{19}$m$^{-3}$]')
 ax.set_ylabel('Count')
 ax.set_title('Histogram of $n_p$ for each solar cycle')
 ax.legend()
-plt.savefig('../figures/hist_np_solar_cycle.png')
-plt.show()
+plt.savefig('../figures/hist_np_solar_cycle_prior.pdf', bbox_inches='tight', pad_inches=0.05,
+            dpi=250)
+#plt.show()
+# Make a histogram of np for each solar cycle
+fig, ax = plt.subplots(1, 1, figsize=(10, 10))
+for i in range(len(df_sc_prior_list)):
+    ax.hist(np.log10(df_sc_after_list[i].np), bins=100, label=df_sc.Maximum[i])
+ax.set_xlabel('$n_p$ [cm$^{-3}$]')
+ax.set_ylabel('Count')
+ax.set_title('Histogram of $n_p$ for each solar cycle')
+ax.legend()
+plt.savefig('../figures/hist_np_solar_cycle_after.pdf', bbox_inches='tight', pad_inches=0.05,
+            dpi=250)
 
 # try :
 #     t_sc_unix = ((df.index - pd.datetime(1970, 1, 1, 0, 0, 0, 0, pytz.UTC)).total_seconds())
