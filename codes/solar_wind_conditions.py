@@ -77,10 +77,10 @@ plt.close("all")
 
 nbins=50
 
-for key in key_list[-1:]:
+for key in key_list[:]:
 
-    fig = plt.figure(figsize=(20, 10))
-    fig.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.1, wspace=0.2, hspace=0.2)
+    fig = plt.figure(figsize=(10, 5))
+    fig.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.1, wspace=0.0, hspace=0.0)
 
     if key == 'bn':
         bins_prior = nbins
