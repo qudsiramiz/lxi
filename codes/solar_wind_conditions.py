@@ -8,6 +8,9 @@ import datetime
 # Set the timezone to UTC for df
 # df.index = df.index.tz_localize(pytz.utc)
 
+plt.rc('text', usetex=True)
+plt.rc('font', family='serif')
+
 au = 1.496e8  # 1 AU in kms
 
 data_read = ''
@@ -73,7 +76,11 @@ unit_list_dict = {'np': '(cm$^-3$)', 'vp_m': '(km/s)',
 plt.close("all")
 
 for key in key_list:
-    fig, axs1 = plt.subplots(1, 1, figsize=(10, 10))
+
+    fig = plt.figure(figsize=(10, 5))
+    fig.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.1, wspace=0.2, hspace=0.2)
+
+    axs1 = fig.add_subplot(1, 2, 1)
     for i in range(len(df_sc_prior_list)):
         axs1.hist(df_sc_prior_list[i][key], bins=100, label=df_sc.Maximum[i])
     axs1.set_xlabel(f'{key} {unit_list_dict[key]}')
@@ -81,7 +88,7 @@ for key in key_list:
     axs1.set_title(f'Histogram of {key} for each solar cycle')
     axs1.legend()
 
-    fig, axs2 = plt.subplots(1, 1, figsize=(10, 10))
+    axs2 = fig.add_subplot(1, 2, 2)
     for i in range(len(df_sc_after_list)):
         axs2.hist(df_sc_after_list[i][key], bins=100, label=df_sc.Maximum[i])
     axs2.set_xlabel(f'{key} {unit_list_dict[key]}')
