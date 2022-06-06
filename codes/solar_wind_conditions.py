@@ -85,18 +85,20 @@ for key in key_list[-1:]:
     if key == 'bn':
         bins_prior = nbins
         bins_after = nbins
+        x_scale = "linear"
     else:
         bins_prior = np.logspace(np.nanmin(np.log10(df_sc_prior_list[i][key])),
                                  np.nanmax(np.log10(df_sc_prior_list[i][key])), nbins)
         bins_after = np.logspace(np.nanmin(np.log10(df_sc_after_list[i][key])),
                                  np.nanmax(np.log10(df_sc_after_list[i][key])), nbins)
+        x_scale = "log"
 
     axs1 = fig.add_subplot(1, 2, 1)
     for i in range(19, 24):
         axs1.hist(df_sc_prior_list[i][key], bins=bins_prior, label=df_sc.Maximum[i], alpha=0.5)
     axs1.set_xlabel(f'{key} {unit_list_dict[key]}')
     axs1.set_ylabel('Count')
-    axs1.set_xscale("log")
+    axs1.set_xscale(x_scale)
     axs1.set_title(f'Histogram of {key} before solar maxima')
     axs1.legend()
 
@@ -105,7 +107,7 @@ for key in key_list[-1:]:
         axs2.hist(df_sc_after_list[i][key], bins=bins_after, label=df_sc.Maximum[i], alpha=0.5)
     axs2.set_xlabel(f'{key} {unit_list_dict[key]}')
     axs2.set_ylabel('Count')
-    axs2.set_xscale("log")
+    axs2.set_xscale(x_scale)
     axs2.set_title(f'Histogram of {key} after solar maxima')
     axs2.legend()
 
