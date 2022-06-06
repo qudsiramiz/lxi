@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import pytz
+import datetime
 
 # Set the timezone to UTC for df
 # df.index = df.index.tz_localize(pytz.utc)
@@ -24,7 +25,7 @@ df['dynamic_pressure'] = 1.6726e-6 * 1.15 * df.np * df.vp_m**2
 df_omni = df.rolling(window='28D', min_periods=100).median()
 
 t_omni = (pd.Series(df_omni.index) -
-          pd.datetime(1970, 1, 1, 0, 0, 0, 0, pytz.UTC)).dt.total_seconds()
+          datetime.datetime(1970, 1, 1, 0, 0, 0, 0, pytz.UTC)).dt.total_seconds()
 
 # try :
 #     t_sc_unix = ((df.index - pd.datetime(1970, 1, 1, 0, 0, 0, 0, pytz.UTC)).total_seconds())

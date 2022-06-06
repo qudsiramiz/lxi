@@ -133,9 +133,3 @@ documents/
 
 # Ignore temporary lock files
 .~lock.*
-
-# Ignore the pickle files
-*.p
-
-# Ignore the swp files
-.*.swp
