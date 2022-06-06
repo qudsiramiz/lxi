@@ -10,7 +10,7 @@ import datetime
 
 au = 1.496e8  # 1 AU in kms
 
-df = pd.read_pickle('../data/omni_coho1hr_merged_mag_plasma_19630101_20211201_v03.p')
+df = pd.read_pickle('../../../test_folder/omni_coho1hr_merged_mag_plasma_19630101_20211201_v03.p')
 
 # For any key in df, if the value is smaller/larger than -/+1e-20,  then set it to NaN
 for key in df.keys():
