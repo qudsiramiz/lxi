@@ -70,6 +70,8 @@ key_list = ['np', 'vp_m', 'dynamic_pressure', 'Tp', 'bn']
 unit_list_dict = {'np': '(cm$^-3$)', 'vp_m': '(km/s)',
                   'dynamic_pressure': '(nPa)', 'Tp': '(K)', 'bn': '(nT)'}
 
+plt.close("all")
+
 for key in key_list:
     fig, axs1 = plt.subplots(1, 1, figsize=(10, 10))
     for i in range(len(df_sc_prior_list)):
@@ -79,7 +81,7 @@ for key in key_list:
     axs1.set_title(f'Histogram of {key} for each solar cycle')
     axs1.legend()
 
-    axs2 = plt.subplots(1, 1, figsize=(10, 10))
+    fig, axs2 = plt.subplots(1, 1, figsize=(10, 10))
     for i in range(len(df_sc_after_list)):
         axs2.hist(df_sc_after_list[i][key], bins=100, label=df_sc.Maximum[i])
     axs2.set_xlabel(f'{key} {unit_list_dict[key]}')
