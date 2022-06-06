@@ -99,8 +99,11 @@ for key in key_list[:]:
     axs1.set_xlabel(f'{key} {unit_list_dict[key]}')
     axs1.set_ylabel('Count')
     axs1.set_xscale(x_scale)
+    axs1.tick_params(which='both', direction='in', left=True, labelleft=True, top=True,
+                         labeltop=False, right=True, labelright=False, bottom=True,
+                         labelbottom=True, labelrotation=0, colors='k')
     axs1.set_title(f'Histogram of {key} before solar maxima')
-    axs1.legend()
+    axs1.legend(loc=2)
 
     axs2 = fig.add_subplot(1, 2, 2)
     for i in range(19, 24):
@@ -109,8 +112,11 @@ for key in key_list[:]:
     axs2.set_ylabel('Count')
     axs2.set_xscale(x_scale)
     axs2.set_title(f'Histogram of {key} after solar maxima')
+    axs2.tick_params(which='both', direction='in', left=True, labelleft=False, top=True,
+                         labeltop=False, right=True, labelright=True, bottom=True,
+                         labelbottom=True, labelrotation=0, colors='k')
     axs2.yaxis.set_label_position("right")
-    axs2.legend()
+    axs2.legend(loc=1)
 
     plt.savefig(f'../figures/hist_{key}_solar_cycle_prior_after.pdf', bbox_inches='tight',
                 pad_inches=0.05, dpi=250)
